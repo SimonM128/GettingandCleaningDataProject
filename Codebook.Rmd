@@ -1,0 +1,81 @@
+---
+title: "Codebook"
+author: "Simon M"
+date: "2026-10-23"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Source data
+
+The data comes from the Human Activity Recognition Using Smartphones Dataset, published by the UCI Machine Learning Repository. Thirty volunteers between the ages of 19 and 48 took part, each performing six activities with a Samsung Galaxy S smartphone strapped to their waist. Using the phone’s embedded sensors, the researchers recorded 3-axial linear acceleration and 3-axial angular velocity at 50 Hz. The volunteers were then randomly allocated to a training set (70%) or a test set (30%).
+
+Full description: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+### Output: `tidy_data.txt`
+
+The data set has 180 rows, one for each combination of the 30 subjects and 6 activities, and 68 columns. The columns are subject, activity, and 66 variables holding the averaged measurements. To load it into R, use read.table("tidy_data.txt", header = TRUE). To view table of output, assign a variable to "read.table("tidy_data....)" and use View(variable).
+
+### Identifiers
+
+| Variable | Description |
+|----------|-------------|
+| `subject` | Volunteer ID, integer 1-30 |
+| `activity` | One of: `walking`, `walking upstairs`, `walking downstairs`, `sitting`, `standing`, `laying` |
+
+### Measurements
+
+Every value is the mean, across all windows recorded for that subject and activity, of the original mean or standard-deviation feature. The original features were normalised to fall between -1 and 1, which makes them unitless. Prior to normalisation, accelerometer signals were measured in standard gravity units (g) and gyroscope signals in radians per second.
+
+**Note: standard deviation variables can be negative.** In the original data these variables were scaled to fall between -1 and 1, so they aren’t raw standard deviations. A value close to -1 indicates little variability, as with sitting or laying, while a value close to 1 indicates a lot. Taking the average leaves the values on this same scale.
+
+Column names are built as:
+
+`<domain><signal><sensor>[Jerk][Magnitude]<statistic>[<axis>]`
+
+| Part | Values | Meaning |
+|------|--------|---------|
+| domain | `time`, `frequency` | `time` = raw time-domain signal; `frequency` = Fast Fourier Transform of the signal |
+| signal | `Body`, `Gravity` | Body motion component or gravity component (gravity only occurs in the time domain) |
+| sensor | `Accelerometer`, `Gyroscope` | Which phone sensor |
+| `Jerk` | optional | Jerk signal derived from body linear acceleration / angular velocity |
+| `Magnitude` | optional | Euclidean magnitude of the 3-axis signal |
+| statistic | `Mean`, `StandardDeviation` | Mean or standard deviation of the window |
+| axis | `X`, `Y`, `Z` | Axis; absent for magnitude variables |
+
+The 33 base signals, each with a `Mean` and a `StandardDeviation` version
+(= 66 variables):
+
+* time domain, 3-axis (x3 axes): `timeBodyAccelerometer`, `timeGravityAccelerometer`,
+  `timeBodyAccelerometerJerk`, `timeBodyGyroscope`, `timeBodyGyroscopeJerk`
+* time domain, magnitude: `timeBodyAccelerometerMagnitude`,
+  `timeGravityAccelerometerMagnitude`, `timeBodyAccelerometerJerkMagnitude`,
+  `timeBodyGyroscopeMagnitude`, `timeBodyGyroscopeJerkMagnitude`
+* frequency domain, 3-axis (x3 axes): `frequencyBodyAccelerometer`,
+  `frequencyBodyAccelerometerJerk`, `frequencyBodyGyroscope`
+* frequency domain, magnitude: `frequencyBodyAccelerometerMagnitude`,
+  `frequencyBodyAccelerometerJerkMagnitude`, `frequencyBodyGyroscopeMagnitude`,
+  `frequencyBodyGyroscopeJerkMagnitude`
+
+Examples: `timeBodyAccelerometerMeanX`, `timeGravityAccelerometerStandardDeviationZ`,
+`frequencyBodyGyroscopeMagnitudeMean`.
+
+### Transformations performed (`clean_tidy_data.R`)
+
+1.  Gets the data. Downloads and unzips the dataset if it isn’t already in the working directory.
+2.  Merges the sets. Loads the training and test files (X_*, y_*, subject_*), names the 561 measurement columns using features.txt, and joins the two sets together with rbind. This gives 10,299 rows.
+3.  Selects the relevant measurements. Keeps the 66 features whose names include -mean() or -std(). Features such as meanFreq() and the angle(...) variables are dropped because they aren’t plain means or standard deviations.
+4.  Labels the activities. Swaps the numeric activity codes for the names in activity_labels.txt, written in lower case with spaces instead of underscores.
+5.  Renames the variables. Expands the abbreviations so the names are readable:
+
+        a)  t and f become time and frequency
+        b)  Acc, Gyro and Mag become Accelerometer, Gyroscope and Magnitude
+        c)  -mean() and -std() become Mean and StandardDeviation
+        d)  () and - are stripped out
+        e)  the BodyBody typo in the source names is fixed to Body
+        
+6.  Summarises and saves. Uses aggregate() to average each variable for every subject and activity pair, sorts by subject and then activity, and writes the result out with write.table(..., row.names = FALSE).
