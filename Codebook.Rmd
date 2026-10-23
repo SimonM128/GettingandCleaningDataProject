@@ -64,7 +64,7 @@ The 33 base signals, each with a `Mean` and a `StandardDeviation` version
 Examples: `timeBodyAccelerometerMeanX`, `timeGravityAccelerometerStandardDeviationZ`,
 `frequencyBodyGyroscopeMagnitudeMean`.
 
-### Transformations performed (`clean_tidy_data.R`)
+### Transformations performed (`run_analysis.R`)
 
 1.  Gets the data. Downloads and unzips the dataset if it isn’t already in the working directory.
 2.  Merges the sets. Loads the training and test files (X_*, y_*, subject_*), names the 561 measurement columns using features.txt, and joins the two sets together with rbind. This gives 10,299 rows.

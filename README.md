@@ -7,7 +7,7 @@ It cleans up and restructures the UCI HAR (Human Activity Recognition Using Smar
 ### Files
 
 File	                Purpose
-clean_tidy_data.R	The only script. Downloads the data, cleans it and writes the tidy data set
+run_analysis.R  	The only script. Downloads the data, cleans it and writes the tidy data set
 Codebook.Rmd	        Describes the variables, the data and every transformation applied
 Codebook.pdf            pdf version of the above codebook
 tidy_data.txt	        Output of the script
@@ -15,8 +15,11 @@ tidy_data.txt	        Output of the script
 ### How to run and view table of the output
 
 r
-source("clean_tidy_data.R")
+
+source("run_analysis.R")
+
 tidy <- read.table("tidy_data.txt", header = TRUE)
+
 View(tidy)
 
 Requirements: base R only, with no additional packages needed. You’ll need an internet connection the first time you run the script, so it can download and unzip the data into your working directory as UCI HAR Dataset/. If that folder already exists, the download is skipped.
